@@ -3,3 +3,4 @@ debug/
 obj/
 objd/
 *.suo
+*.csproj.user
