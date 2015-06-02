@@ -110,6 +110,9 @@ namespace GetProjectByOneFile
                 {
                     var includedPaths = GetDistinctReferences(cppFilePath);
                     AddRangeToList(result, includedPaths);
+
+                    var corrCppPaths = GenCorrespondingCpp(includedPaths);
+                    AddRangeToList(result, corrCppPaths);
                 }
                 else
                 {
@@ -126,6 +129,18 @@ namespace GetProjectByOneFile
                 string cppFilePath = CombinePath(_rootPath, item);
                 CopyFile(cppFilePath, targetDir);
             }
+        }
+
+        static List<string> GenCorrespondingCpp(List<string> headFiles)
+        {
+            List<string> result = new List<string>();
+
+            foreach (var item in headFiles)
+            {
+                result.Add(item.Substring(0, item.Length - 2) + ".cc");
+            }
+
+            return result;
         }
 
         static string GetTargetDir(string workPath, string originalInclude)
@@ -184,6 +199,12 @@ namespace GetProjectByOneFile
 
         static void CopyFile(string file, string desPath)
         {
+            if (!File.Exists(file))
+            {
+                Console.WriteLine("Ignore copy file:{0}", file);
+                return;
+            }
+
             string desFilePath = CombinePath(desPath, Path.GetFileName(file));
 
             if (File.Exists(desFilePath))
