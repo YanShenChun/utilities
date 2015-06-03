@@ -30,8 +30,8 @@ namespace GetProjectByOneFile
         {
 #if DEBUG
             args = new string[3];
-            args[0] = @"D:\work\chromium\src";
-            args[1] = @"D:\work\chromium\src\base\logging_win.h";
+            args[0] = @"E:\chromium\42.0.2311.135\src";
+            args[1] = @"E:\chromium\42.0.2311.135\src\base\logging_win.cc";
             args[2] = @"tmp";
 #endif
             if (args.Length != 3)
@@ -140,8 +140,10 @@ namespace GetProjectByOneFile
 				return false;
 			}
 
-			if (filePath.Contains("android") || filePath.Contains("mac")
-				|| filePath.Contains("ios") || filePath.Contains("posix"))
+			if (filePath.Contains(@"\android\") || filePath.Contains(@"\mac\")
+				|| filePath.Contains(@"\ios\") || filePath.Contains(@"\posix\")
+                || filePath.Contains("_mac.") || filePath.Contains("_ios.")
+                || filePath.Contains("_android.") || filePath.Contains("_posix."))
 			{
 				return true;
 			}
