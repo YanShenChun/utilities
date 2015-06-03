@@ -99,16 +99,18 @@ namespace GetProjectByOneFile
             CopyFile(_targetFile, targetFileRelvDir);
 
             List<string> result = GetDistinctReferences(_targetFile);
+            List<string> filteredResult = new List<string>();
             int pos = 0;
 
 
             while (pos < result.Count)
             {
-                string cppFilePath = CombinePath(_rootPath, result[pos]);
+                string codeFilePath = CombinePath(_rootPath, result[pos]);
 
-                if (File.Exists(cppFilePath))
+                if (!IsUnixPlatform(codeFilePath) && File.Exists(codeFilePath))
                 {
-                    var includedPaths = GetDistinctReferences(cppFilePath);
+                    filteredResult.Add(result[pos]);
+                    var includedPaths = GetDistinctReferences(codeFilePath);
                     AddRangeToList(result, includedPaths);
 
                     var corrCppPaths = GenCorrespondingCpp(includedPaths);
@@ -116,20 +118,36 @@ namespace GetProjectByOneFile
                 }
                 else
                 {
-                    Console.WriteLine("Error: {0} doesn't exist!", cppFilePath);
+                    Console.WriteLine("Error: {0} doesn't exist!", codeFilePath);
                 }
 
                 pos++;
             }
 
             // post copy
-            foreach (var item in result)
+            foreach (var item in filteredResult)
             {
                 string targetDir = GetTargetDir(workPath, item);
                 string cppFilePath = CombinePath(_rootPath, item);
                 CopyFile(cppFilePath, targetDir);
             }
         }
+
+		static bool IsUnixPlatform(string filePath)
+		{
+			if (string.IsNullOrEmpty(filePath))
+			{
+				return false;
+			}
+
+			if (filePath.Contains("android") || filePath.Contains("mac")
+				|| filePath.Contains("ios") || filePath.Contains("posix"))
+			{
+				return true;
+			}
+
+			return false;
+		}
 
         static List<string> GenCorrespondingCpp(List<string> headFiles)
         {
@@ -138,6 +156,7 @@ namespace GetProjectByOneFile
             foreach (var item in headFiles)
             {
                 result.Add(item.Substring(0, item.Length - 2) + ".cc");
+				result.Add(item.Substring(0, item.Length - 2) + "_win.cc");
             }
 
             return result;
